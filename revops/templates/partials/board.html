@@ -1,0 +1,83 @@
+<div id="board">
+  {% for a in accounts %}
+  <details class="card sev{{ a.severity }}" style="--i: {{ loop.index0 }}" {% if a.severity >= 3 %}open{% endif %}>
+    <summary>
+      <div class="acct">
+        <div class="name">{{ a.name }}</div>
+        <div class="meta">
+          <span class="tier {{ a.tier }}">{{ a.tier }}</span>
+          <span>{{ a.owner }}</span>
+        </div>
+      </div>
+      <div class="numbers">
+        <div class="arr">${{ "{:,.0f}".format(a.arr) }}</div>
+        <div class="renewal {% if a.days_until_renewal is not none and a.days_until_renewal <= 60 %}soon{% endif %}">
+          {% if a.renewal_date %}
+            renews {{ a.renewal_date.strftime("%b %d") }} ({{ a.days_until_renewal }}d)
+          {% else %}
+            renewal date unknown
+          {% endif %}
+        </div>
+      </div>
+      <div class="spark">
+        <canvas width="110" height="34"
+                data-series="{{ a.series | tojson }}"
+                data-severity="{{ a.severity }}"></canvas>
+      </div>
+      {% if a.severity == 0 and has_run %}
+      <span class="badge sev0">HEALTHY</span>
+      {% elif a.severity == 0 %}
+      <span class="badge unscored">UNSCORED</span>
+      {% elif a.severity == 1 %}
+      <span class="badge sev1">SEV 1</span>
+      {% elif a.severity == 2 %}
+      <span class="badge sev2">SEV 2</span>
+      {% else %}
+      <span class="badge sev3">SEV 3</span>
+      {% endif %}
+    </summary>
+    <div class="trace">
+      {% if not a.traces %}
+        <div class="trace-empty">
+          {% if has_run %}
+            No rules fired. Trailing 14-day usage is stable, the champion
+            {{ a.champion }} was active {{ a.champion_silent_days }}d ago{% if a.days_until_renewal is not none %},
+            and the renewal is {{ a.days_until_renewal }} days out{% endif %}.
+          {% else %}
+            The agent hasn't scored this account yet.
+          {% endif %}
+        </div>
+      {% endif %}
+      {% for t in a.traces %}
+      <div class="finding sev{{ t.severity }}">
+        <div class="rail"></div>
+        <div>
+          <div class="rule">
+            <b>{{ t.label }}</b>
+            {% if t.signal == "usage_drop" %}
+              <span>trailing 14d usage down vs prior 14d (threshold &gt;40%)</span>
+            {% elif t.signal == "champion_silent" %}
+              <span>champion {{ a.champion }} inactive {{ a.champion_silent_days }}d (threshold &gt;30d)</span>
+            {% elif t.signal == "renewal_upcoming" %}
+              <span>renewal in {{ a.days_until_renewal }}d (window ≤60d)</span>
+            {% endif %}
+            {% if t.severity == 3 %}
+            <span class="slack-chip">＃ Slack alert {{ "sent" if slack_configured else "logged" }}</span>
+            {% endif %}
+          </div>
+          <div class="action">{{ t.action }}</div>
+          <div class="why">{{ t.reason }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </details>
+  {% endfor %}
+  {% if just_ran %}
+  <div class="toast">
+    Agent run complete via <b>{{ narrator_name }}</b> narrator.
+    {% if alerts_sent %}Slack alert sent for {{ alerts_sent | join(", ") }}.{% endif %}
+    {% if alerts_logged %}Slack alert logged for {{ alerts_logged | join(", ") }} (no webhook set).{% endif %}
+  </div>
+  {% endif %}
+</div>

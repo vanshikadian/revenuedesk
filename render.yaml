@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: revenuedesk
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      # Optional. Leave unset to run in offline mode (template narrator,
+      # Slack alerts logged).
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: SLACK_WEBHOOK_URL
+        sync: false

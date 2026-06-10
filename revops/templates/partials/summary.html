@@ -1,0 +1,38 @@
+<div id="summary" {% if oob %}hx-swap-oob="true"{% endif %}>
+  {% if summary %}
+  <div class="summary-line">
+    <span class="who">AGENT</span>
+    <span>{{ summary }}</span>
+  </div>
+  {% else %}
+  <div class="summary-line idle">
+    <span class="who">AGENT</span>
+    <span>Standing by. Run the agent to scan every account for risk signals.</span>
+  </div>
+  {% endif %}
+
+  <div class="stats">
+    <div class="stat">
+      <div class="k">ARR at risk</div>
+      <div class="v {% if arr_at_risk %}risk{% endif %}">${{ "{:,.0f}".format(arr_at_risk) }}</div>
+      <div class="sub">{{ accounts_flagged }} flagged account{{ "" if accounts_flagged == 1 else "s" }}</div>
+    </div>
+    <div class="stat">
+      <div class="k">Accounts watched</div>
+      <div class="v">{{ accounts_watched }}</div>
+      <div class="sub">in the warehouse</div>
+    </div>
+    <div class="stat">
+      <div class="k">Signals firing</div>
+      <div class="v">{{ accounts | map(attribute="traces") | map("length") | sum }}</div>
+      <div class="sub">renewal · usage · champion</div>
+    </div>
+    <div class="stat">
+      <div class="k">Last agent run</div>
+      <div class="v" style="font-size:16px; padding-top:6px;">
+        {% if last_run_at %}{{ last_run_at.strftime("%H:%M:%S") }}{% else %}—{% endif %}
+      </div>
+      <div class="sub">{% if last_run_at %}{{ last_run_at.strftime("%b %d, %Y") }}{% else %}not yet run{% endif %}</div>
+    </div>
+  </div>
+</div>

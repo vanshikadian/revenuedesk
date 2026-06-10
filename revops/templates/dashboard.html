@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<header>
+  <div class="logo">⚡</div>
+  <div>
+    <h1>Revenue<span class="accent">Desk</span></h1>
+    <div class="tagline">an AI agent watching every account in the warehouse</div>
+  </div>
+  <div class="spacer"></div>
+  <button class="run-btn" hx-post="/agent/run" hx-target="#board" hx-swap="outerHTML"
+          hx-indicator="this">
+    <span class="bolt">⚡</span>
+    <span class="spinner">◌</span>
+    Run agent
+  </button>
+</header>
+
+{% include "partials/summary.html" %}
+
+<div class="board-title">
+  <h2>Accounts by risk</h2>
+  <span class="hint">click a row for the agent's reasoning trace</span>
+</div>
+
+{% include "partials/board.html" %}
+{% endblock %}

@@ -1,0 +1,15 @@
+services:
+  revops:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # Both optional; without them the app runs in offline mode.
+      # Values are read from a local .env file if present.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+    volumes:
+      - revops-data:/app/data
+
+volumes:
+  revops-data:

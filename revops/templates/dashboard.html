@@ -23,4 +23,24 @@
 </div>
 
 {% include "partials/board.html" %}
+
+<div class="agent-loading" id="agent-loading">
+  <div class="dots"><span></span><span></span><span></span></div>
+  <div class="loading-title">Agent is scanning every account…</div>
+  <div class="loading-sub">This usually takes 20–40 seconds — hang tight</div>
+</div>
+
+<script>
+  document.body.addEventListener("htmx:beforeRequest", function(e) {
+    if (e.detail.elt.classList.contains("run-btn")) {
+      document.getElementById("board").style.display = "none";
+      document.getElementById("agent-loading").classList.add("visible");
+    }
+  });
+  document.body.addEventListener("htmx:afterSettle", function(e) {
+    document.getElementById("agent-loading").classList.remove("visible");
+    document.getElementById("board").style.display = "";
+    initSparklines();
+  });
+</script>
 {% endblock %}
